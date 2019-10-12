@@ -32,7 +32,7 @@ steps:
         from_secret: discord_webhook_secret
       message: "
         {{#success build.status}}
-          build {{build.number}} deployed.
+          **{{repo.name}}#{{build.number}}** deployed.
         {{ else }}
-          build {{build.number}} failed. See {{build.link}}.
+          **{{repo.name}}#{{build.number}}** failed. See {{build.link}}.
         {{/success}}"
