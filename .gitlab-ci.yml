@@ -1,11 +1,15 @@
 image: docker:19.03.13
 
 services:
-  - docker:19.03.12-dind
+  - docker:19.03.13-dind
 
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
+  LOCAL_REGISTRY_IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+  LOCAL_REGISTRY_IMAGE_TAGGED: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  DOCKERHUB_IMAGE_LATEST: pztrn/java:latest
+  DOCKERHUB_IMAGE_TAGGED: pztrn/java:$CI_COMMIT_TAG
 
 stages:
   - build
@@ -19,15 +23,35 @@ build-local-registry-latest:
   tags:
     - docker
   script:
-    - docker build --pull -t $CI_REGISTRY_IMAGE:latest .
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker build --pull -t $LOCAL_REGISTRY_IMAGE_LATEST .
+    - docker push $LOCAL_REGISTRY_IMAGE_LATEST
 
 build-local-registry-version:
   stage: build
   tags:
     - docker
   script:
-    - docker build --pull -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker build --pull -t $LOCAL_REGISTRY_IMAGE_TAGGED .
+    - docker push $LOCAL_REGISTRY_IMAGE_TAGGED
+  only:
+    - tags
+
+build-dockerhub-latest:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+    - docker build --pull -t $DOCKERHUB_IMAGE_LATEST
+    - docker push $DOCKERHUB_IMAGE_LATEST
+
+build-dockerhub-version:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+    - docker build --pull -t $DOCKERHUB_IMAGE_TAGGED
+    - docker push $DOCKERHUB_IMAGE_TAGGED
   only:
     - tags
