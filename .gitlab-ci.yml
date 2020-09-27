@@ -17,6 +17,7 @@ stages:
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  - docker login -u $DOCKERHUB_USER -p "$DOCKERHUB_PASSWORD"
   - docker info
 
 build-local-registry-latest:
@@ -42,7 +43,6 @@ build-dockerhub-latest:
   tags:
     - docker
   script:
-    - docker login -u $DOCKERHUB_USER -p "$DOCKERHUB_PASSWORD"
     - docker build --pull -t $DOCKERHUB_IMAGE_LATEST .
     - docker push $DOCKERHUB_IMAGE_LATEST
 
@@ -51,7 +51,6 @@ build-dockerhub-version:
   tags:
     - docker
   script:
-    - docker login -u $DOCKERHUB_USER -p "$DOCKERHUB_PASSWORD"
     - docker build --pull -t $DOCKERHUB_IMAGE_TAGGED .
     - docker push $DOCKERHUB_IMAGE_TAGGED
   only:
